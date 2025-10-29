@@ -5,7 +5,7 @@
 @section('content')
 <div class="register-box">
     <div class="register-logo">
-    <a href="../index2.html"><b>Admin</b>LTE</a>
+    <a href="{{ route('login') }}"><b>Admin</b>LTE</a>
     </div>
     <div class="card">
     <div class="card-body register-card-body">
@@ -17,7 +17,7 @@
             @endforeach
         @endif --}}
 
-        <p class="register-box-msg">Register a new membership</p>
+        <p class="register-box-msg">Reset password</p>
         <form action="{{ route('password.update') }}" method="post">
             @csrf
             <input type="hidden" name="token" value="{{ request()->token }}">
