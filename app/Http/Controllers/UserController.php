@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
 use App\Models\User;
+use App\Models\UserProfile;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -33,7 +35,9 @@ class UserController extends Controller
 
     public function edit(User $user) //binds by using same variable name on method and route
     {
-        return view('users.edit', compact('user'));
+        $user->load(['profile', 'interests']);
+        $roles = Role::all();
+        return view('users.edit', compact('user', 'roles'));
     }
 
     public function update(User $user, Request $request)
@@ -48,6 +52,43 @@ class UserController extends Controller
         $user->save();
 
         return redirect()->route('users.index')->withStatus('User updated successfully!');
+    }
+
+    public function updateProfile(User $user, Request $request)
+    {
+        $input = $request->validate([
+            'type'  => 'required',
+            'address'  => 'nullable',
+        ]);
+
+        UserProfile::updateOrCreate(['user_id' => $user->id], $input);
+
+        return back()->withStatus('User updated successfully!');
+    }
+
+    public function updateInterests(User $user, Request $request)
+    {
+        $input = $request->validate([
+            'interests'  => 'nullable|array',
+        ]);
+
+        $user->interests()->delete();
+
+        if(!empty($input['interests']))
+            $user->interests()->createMany($input['interests']);
+
+        return back()->withStatus('User updated successfully!');
+    }
+
+    public function updateRoles(User $user, Request $request)
+    {
+        $input = $request->validate([
+            'roles'  => 'required|array',
+        ]);
+
+        $user->roles()->sync($input['roles']);
+
+        return back()->withStatus('User updated successfully!');
     }
 
     public function destroy(User $user)
