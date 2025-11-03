@@ -10,6 +10,14 @@
             {{ $value }}
         </div>
     @endsession
+
+    <form action="{{ route('users.index') }}" method="GET" class="mb-3" style="width:300px">
+        <div class="input-group">
+            <input type="text" name="keyword" class="form-control" value="{{ request()?->keyword }}" placeholder="Search by name or e-mail">
+            <button class="btn btn-primary" type="submit">Search</button>
+        </div>
+    </form>
+
     <table class="table">
         <thead>
             <tr>
@@ -26,14 +34,22 @@
                     <td>{{ $user->name }}</td>
                     <td>{{ $user->email }}</td>
                     <td>
-                        <a href="{{ route('users.edit', $user->id) }}" class="btn btn-primary btn-sm">Edit</a>
-                        <form action="{{ route('users.destroy', $user->id) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                        </form>
+                        @can('edit', \App\Models\User::class) 
+                            <a href="{{ route('users.edit', $user->id) }}" class="btn btn-primary btn-sm">Edit</a>
+                        @endcan
+
+                        {{-- checks on UserPolicy::destroy --}}
+                        @can('destroy', \App\Models\User::class) 
+                            <form action="{{ route('users.destroy', $user->id) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        @endcan
                     </td>
             @endforeach
         </tbody>
     </table>
+
+    {{ $users->links() }}
 @endsection
